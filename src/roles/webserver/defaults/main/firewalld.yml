@@ -1,0 +1,13 @@
+---
+
+firewalld_service:
+  - service: 'http'
+    zone: 'public'
+    permanent: 'yes'
+    state: 'enabled'
+    immediate: true
+  - service: 'https'
+    zone: 'public'
+    permanent: 'yes'
+    state: 'enabled'
+    immediate: true

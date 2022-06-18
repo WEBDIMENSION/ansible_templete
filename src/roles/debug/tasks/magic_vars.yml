@@ -1,0 +1,42 @@
+---
+# tasks file for src/roles/debug
+
+- name: Debug Hello world
+  debug:
+    msg: "Hellow world"
+
+- name: Debug "ansible_play_hosts"
+  debug:
+    msg: "{{ ansible_play_hosts }}"
+
+- name: Debug "inventory_hostname"
+  debug:
+    msg: "{{ inventory_hostname }}"
+
+- name: Debug "inventory_hostname_short"
+  debug:
+    msg: "{{ inventory_hostname_short }}"
+
+- name: Debug "ansible_play_batch"
+  debug:
+    msg: "{{ ansible_play_batch }}"
+
+- name: Debug "ansible_host"
+  debug:
+    msg: "{{ ansible_host }}"
+
+- name: Debug "ansible_play_hosts_all"
+  debug:
+    msg: "{{ ansible_play_hosts_all }}"
+
+- name: Debug "group_names"
+  debug:
+    msg: "{{ group_names }}"
+
+- name: Debug "ansible_play_name"
+  debug:
+    msg: "{{ ansible_play_name }}"
+
+- name: Debug "ansible_verbosity"
+  debug:
+    msg: "{{ ansible_verbosity }}"

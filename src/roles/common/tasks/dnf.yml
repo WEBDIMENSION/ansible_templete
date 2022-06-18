@@ -1,0 +1,32 @@
+---
+# tasks file for common
+- name: Setting /etc/dnf/dnf.conf
+  become: true
+  lineinfile:
+    dest=/etc/dnf/dnf.conf
+    line={{ item }}
+  with_items:
+    - 'max_parallel_downloads=20'
+    - 'fastestmirror=True'
+
+- name: Update dnf
+  become: true
+  # noqa 403
+  dnf:
+    name: '*'
+    state: latest
+  async: 1000
+  poll: 0
+  register: dnf_sleeper
+  when:
+    - ansible_check_mode is false
+  changed_when: false
+
+- name: Wait dnf update
+  async_status:
+    jid: "{{ dnf_sleeper.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  retries: 40
+  delay: 30
+  ignore_errors: true

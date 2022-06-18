@@ -1,0 +1,23 @@
+---
+
+- name: Install config-manager --set-enabled crb
+  become: true
+  command: dnf config-manager --set-enabled crb
+  when:
+    - php_exists.failed is true
+
+- name: Install remi
+  become: true
+  command: dnf install dnf-utils http://rpms.remirepo.net/enterprise/remi-release-9.rpm -y
+  when:
+    - php_exists.failed is true
+
+- name: Install php
+  become: true
+  shell: >
+    dnf -y module reset php;
+    dnf -y module enable php:{{ php.versions.php81 }};
+  when:
+    - php_exists.failed is true
+  notify:
+    - Restart webserver

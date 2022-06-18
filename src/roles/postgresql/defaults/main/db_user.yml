@@ -1,0 +1,6 @@
+---
+
+postgres:
+  user_name: "ansible_pg_user"
+  user_password: "{{ secret.pg_user.pg_user_password }}"
+  db_name: ansible_db

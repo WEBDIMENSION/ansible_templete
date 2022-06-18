@@ -1,0 +1,15 @@
+---
+# tasks file for src/roles/webserver
+- include: httpd.yml
+  when: web_server_service_name == 'httpd'
+  tags:
+    - httpd
+
+- include: nginx.yml
+  when: web_server_service_name == 'nginx'
+  tags:
+    - nginx
+
+- include: firewalld.yml
+  tags:
+    - webserver_firewalld

@@ -1,0 +1,10 @@
+---
+# handlers file for src/roles/docker
+
+- name: service_docker_enabled
+  become: true
+  systemd:
+    name: docker
+    state: started
+    daemon_reload: true
+    enabled: true

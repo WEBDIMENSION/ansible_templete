@@ -1,0 +1,16 @@
+---
+
+master_user:
+  name: 'ansible'
+  groups: 'wheel'
+  append: 'yes'
+  state: 'present'
+  remove: 'no'
+  password: '{{ secret.ansible_user_password }}'
+  public_key: 'ansible.pub'
+  secret_key: 'ansible'
+  login_shell: '/bin/bash'
+  create_home: 'yes'
+  sudo: 'present'
+  comment: 'ansible user'
+  expires: '-1'

@@ -1,0 +1,17 @@
+---
+# tasks file for src/roles/monitor
+
+- name: check installed glances
+  command: bash -lc "glances --version"
+  register: glances_exists
+  changed_when: false
+  ignore_errors: true
+
+- name: debug
+  debug:
+    msg: "{{ glances_exists }}"
+
+- name: Install glances
+  become: true
+  command: pip install glances
+  when: glances_exists.failed is true

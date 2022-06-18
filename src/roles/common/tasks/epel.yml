@@ -1,0 +1,7 @@
+---
+# tasks file for common
+
+- name: Install epel
+  become: true
+  dnf:
+    name: epel-release

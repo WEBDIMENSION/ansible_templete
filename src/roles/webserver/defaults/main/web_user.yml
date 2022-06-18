@@ -1,0 +1,16 @@
+---
+web_user:
+  name: "web-user"
+  groups: 'wheel'
+  append: true
+  state: 'present'
+  remove: 'no'
+  password: "{{ secret.web_user.web_user_password }}"
+  password_salt: "{{ secret.web_user.web_user_password_salt }}"
+  public_key: 'web_user.pub'
+  secret_key: 'web_user'
+  login_shell: '/bin/bash'
+  create_home: true
+  sudo: 'present'
+  comment: 'web user'
+  expires: '-1'

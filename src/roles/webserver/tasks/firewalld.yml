@@ -1,0 +1,15 @@
+---
+# defaults file for src/roles/init
+
+- name: Firewalld for webserver
+  become: true
+  firewalld:
+    zone: "{{ item.zone }}"
+    service: "{{ item.service }}"
+    permanent: "{{ item.permanent }}"
+    state: "{{ item.state }}"
+    immediate: "{{ item.immediate }}"
+  with_items: "{{ firewalld_service }}"
+  when:
+    - ansible_check_mode is false
+  notify: Restart firewalld

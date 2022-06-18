@@ -1,0 +1,69 @@
+---
+# tasks file for src/roles/master_user
+
+- name: Edit master_user config user
+  become: true
+  replace:
+    path: '/etc/php-fpm.d/www.conf'
+    regexp: '^user = apache'
+    replace: 'user = nginx'
+#  when:
+#    - php_exists is failed
+  notify:
+    - Restart webserver
+
+- name: Edit master_user config group
+  become: true
+  replace:
+    path: '/etc/php-fpm.d/www.conf'
+    regexp: '^group = apache'
+    replace: 'group = nginx'
+#  when:
+#    - php_exists is failed
+  notify:
+    - Restart webserver
+
+
+- name: Edit master_user config listen.owner
+  become: true
+  replace:
+    path: '/etc/php-fpm.d/www.conf'
+    regexp: ';listen.owner = nobody'
+    replace: 'listen.owner = nginx'
+#  when:
+#    - php_exists is failed
+  notify:
+    - Restart webserver
+
+- name: Edit master_user config listen.group
+  become: true
+  replace:
+    path: '/etc/php-fpm.d/www.conf'
+    regexp: ';listen.group = nobody'
+    replace: 'listen.group = nginx'
+#  when:
+#    - php_exists is failed
+  notify:
+    - Restart webserver
+
+- name: Edit master_user config group
+  become: true
+  replace:
+    path: '/etc/php-fpm.d/www.conf'
+    regexp: 'listen.acl_users = apache,nginx'
+    replace: ';listen.acl_users = apache,nginx'
+#  when:
+#    - php_exists is failed
+  notify:
+    - Restart webserver
+
+- name: Start master_user
+  become: true
+  systemd:
+    state: started
+    name: php-fpm
+    enabled: true
+  notify:
+    - Restart webserver
+#  when:
+#    - php_exists is failed

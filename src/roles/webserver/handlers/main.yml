@@ -1,0 +1,18 @@
+---
+# handlers file for src/roles/webserver
+-
+- name: Restart webserver
+  become: true
+  service:
+    name: "{{ web_server_service_name }}"
+    state: restarted
+    enabled: true
+  when:
+    - not ansible_check_mode
+
+- name: Restart firewalld
+  become: true
+  systemd:
+    state: restarted
+    name: firewalld
+    enabled: true

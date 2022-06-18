@@ -1,0 +1,71 @@
+---
+# tasks file for src/roles/sshd
+
+- name: disable password auth
+  become: true
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PasswordAuthentication"
+    insertafter: "^#PasswordAuthentication"
+    line: "PasswordAuthentication no"
+  notify: Restart sshd
+
+- name: Enable public key auth
+  become: true
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^#PubkeyAuthentication yes"
+    insertafter: "^#PubkeyAuthentication yes"
+    line: "PubkeyAuthentication yes"
+  notify: Restart sshd
+
+- name: Disable challenge response
+  become: true
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^ChallengeResponseAuthentication"
+    insertafter: "^#ChallengeResponseAuthentication"
+    line: "ChallengeResponseAuthentication no"
+  notify: Restart sshd
+
+- name: Disable root login
+  become: true
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PermitRootLogin"
+    insertafter: "^#PermitRootLogin"
+    line: "PermitRootLogin no"
+  notify: Restart sshd
+
+- name: Set sshd port
+  become: true
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^Port"
+    insertafter: "^#Port"
+    line: "Port {{ sshd_port }}"
+  notify: Restart sshd
+
+- name: Firewalld for sshd
+  become: true
+  firewalld:
+    zone: "{{ item.zone }}"
+    service: "{{ item.service }}"
+    permanent: "{{ item.permanent }}"
+    state: "{{ item.state }}"
+    immediate: "{{ item.immediate }}"
+  with_items: "{{ firewalld_service }}"
+  when: firewalld_service is defined
+  notify: Restart firewalld
+
+- name: Firewalld setting
+  become: true
+  firewalld:
+    rich_rule: 'rule family=ipv4 source address="{{ item.1 }}" port port="{{ item.0.port }}" protocol="{{ item.0.protocol }}" "{{ item.0.control }}"'
+    permanent: true
+    state: enabled
+  with_subelements:
+    - "{{ firewalld_rich_rules }}"
+    - ips
+  when: firewalld_rich_rules is defined
+  notify: Restart firewalld

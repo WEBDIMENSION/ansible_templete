@@ -1,0 +1,6 @@
+---
+# tasks file for src/roles/php
+
+- include: php.yml
+  tags:
+    - php

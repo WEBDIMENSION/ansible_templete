@@ -1,0 +1,74 @@
+---
+
+# defaults file for src/roles/lamp
+httpd_dependencies:
+  - httpd
+  - httpd-devel
+  - httpd-tools
+httpd_document_root: '/var/www'
+httpd_public_dir: '/html'
+httpd_host_name: "lamp.develop.local"
+
+
+#  httpd:
+#    hostname: "{{ httpd_host_name }}"
+#    host_dir: "{{ httpd_document_root }}{{ httpd_public_dir }}"
+#    state: 'present'
+#    owner: "{{ user.name }}"
+#    group: "{{ user.group }}"
+#    recurse: "yes"
+#    conf_options:
+#      - AllowOverride All
+#      - Options -Indexes +FollowSymLinks
+#      - Options +ExecCGI
+#      - AddHandler cgi-script .pl .cgi
+#      - Order allow,deny
+#      - Allow from all
+#    conf_ssl_options:
+#      - AllowOverride All
+#      - Options -Indexes +FollowSymLinks
+#      - Options +ExecCGI
+#      - AddHandler cgi-script .pl .cgi
+#      - Order allow,deny
+#      - Allow from all
+#  basic_auth:
+#    state: 'present'
+#    path: "{{ httpd_document_root }}{{ httpd_public_dir }}"
+#    name: "{{ user.name }}"
+#    password: "{{ secret.lamp_basic_auth_password }}"
+#    owner: "{{ user.name }}"
+#    group: "{{ user.owner }}"
+#    mode: '0644'
+#    htaccess_path: "{{ httpd_document_root }}{{ httpd_public_dir }}/.htaccess"
+#    ssl:
+#      ssl_provider: 'general'
+#      ssl_general:
+#        - name: 'SSLCertificateFile'
+#          src: '../common/certs/server.crt'
+#          dest: '/etc/pki/tls/certs/"{{ httpd_host_name }}".crt'
+#        - name: 'SSLCertificateKeyFile'
+#          src: '../common/certs/server.key'
+#          dest: '/etc/pki/tls/private/"{{ httpd_host_name }}".key'
+#      letsencrypt:
+#        state: 'present'
+#        email: "{{ secret.letsencrypt_email }}"
+#  crontab:
+#    letsencrypt:
+#      name: 'letsencrypt'
+#      state: 'present'
+#      user: 'root'
+#      job: /bin/bash -lc "certbot certonly --force-renew --webroot -w '/var/www/html' \
+#              -d '{{ lamp-001.develop.local }}' --post-hook 'systemctl reload httpd' > /dev/null 2>&1"
+#      minute: "0"
+#      hour: "12"
+#      day: "1"
+#      month: "*"
+#      weekday: "*"
+#  mysql57:
+#    db_user:
+#      username: "lamp_db_user"
+#      password: "{{ secret.lamp.db_user_password }}"
+#      user_state: "present"
+#      host: "localhost"
+#      db_name: "lamp_db"
+#      db_state: "present"

@@ -1,0 +1,6 @@
+---
+# defaults file for src/roles/docker
+dockerd_port: 2376
+docker_dependencies:
+  - docker-ce
+  - docker-ce-cli

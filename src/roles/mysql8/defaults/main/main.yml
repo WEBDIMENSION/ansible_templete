@@ -1,0 +1,12 @@
+---
+# defaults file for roles/mysql8
+
+mysql8:
+  databases:
+    ansible:
+      username: "ansible_db_user"
+      password: "{{ secret.mysql8.mysql_user_password }}"
+      user_state: "present"
+      host: "localhost"
+      db_name: "ansible"
+      db_state: "present"

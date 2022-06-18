@@ -1,0 +1,56 @@
+---
+# tasks file for src/roles/lamp
+
+- name: Check installed php
+  command: bash -lc "php --version"
+  register: php_exists
+  changed_when: false
+  ignore_errors: true
+
+- name: Debug php --version
+  debug:
+    msg: "{{ php_exists }}"
+
+- include: php_{{ansible_distribution }}_{{ ansible_distribution_major_version }}.yml
+  when:
+    - php_exists.failed is true
+    - ansible_distribution == "AlmaLinux"
+    - ansible_distribution_major_version == "8"
+
+- include: php_{{ansible_distribution }}_{{ ansible_distribution_major_version }}.yml
+  when:
+    - php_exists.failed is true
+    - ansible_distribution == "AlmaLinux"
+    - ansible_distribution_major_version == "9"
+
+
+- name: Install php dependencies
+  become: true
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ php_dependencies }}"
+  when: php_exists.failed is true
+  notify:
+    - Restart webserver
+
+
+- name: Configure PHP
+  become: true
+  ini_file:
+    path: /etc/php.ini
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    backup: "{{ item.backup }}"
+    mode: '0600'
+  with_items:
+    - { section: PHP, option: post_max_size, value: "{{ php.filesize }}", backup: true }
+    - { section: PHP, option: upload_max_filesize, value: "{{ php.filesize }}", backup: false }
+    - { section: Date, option: date.timezone, value: "{{ php.timezone }}", backup: false }
+    - { section: mbstring, option: mbstring.language, value: "{{ php.language }}", backup: false }
+    - { section: mbstring, option: mbstring.internal_encoding, value: "{{ php.internal_encoding }}", backup: false }
+    - { section: mbstring, option: mbstring.encoding_translation, value: "{{ php.encoding_translation }}", backup: false }
+    - { section: mbstring, option: mbstring.detect_order, value: "{{ php.detect_order }}", backup: false }
+  notify:
+    - Restart webserver

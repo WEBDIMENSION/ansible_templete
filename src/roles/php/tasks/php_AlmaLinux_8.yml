@@ -1,0 +1,27 @@
+---
+
+- name: Install RPM-GPG-KEY-remi
+  become: true
+  rpm_key:
+    state: present
+    key: https://rpms.remirepo.net/RPM-GPG-KEY-remi2018
+
+- name: Install remi
+  become: true
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - http://rpms.remirepo.net/enterprise/remi-release-8.rpm
+  notify:
+    - Restart webserver
+
+- name: Install php
+  become: true
+  shell: >
+    dnf -y module reset php;
+    dnf -y module enable php:{{ php.versions.php80 }};
+  when:
+    - php_exists.failed is true
+  notify:
+    - Restart webserver

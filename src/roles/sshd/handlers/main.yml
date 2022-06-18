@@ -1,0 +1,20 @@
+---
+# handlers file for src/roles/sshd
+
+- name: Restart sshd
+  become: true
+  systemd:
+    state: restarted
+    name: sshd
+    enabled: true
+  when:
+    - ansible_check_mode is false
+
+- name: Restart firewalld
+  become: true
+  systemd:
+    state: restarted
+    name: firewalld
+    enabled: true
+  when:
+    - ansible_check_mode is false

@@ -1,0 +1,16 @@
+---
+# tasks file for src/roles/monitor
+
+- name: Check installed bashtop
+  command: bash -lc "bpytop -v"
+  register: bpytop_exists
+  changed_when: false
+  ignore_errors: true
+#  tags:
+#    - bpytop
+
+- name: Install bpytop
+  become: true
+  command: pip install bpytop
+  when:
+    - bpytop_exists.failed is true

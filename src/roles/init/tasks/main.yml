@@ -1,0 +1,11 @@
+---
+# tasks file for src/roles/init
+
+- include: ansible_user.yml
+  tags: ansible_user
+
+- include: hostname.yml
+  tags: hostname
+
+- include: firewalld.yml
+  tags: init_firewalld

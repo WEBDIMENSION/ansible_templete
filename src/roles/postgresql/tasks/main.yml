@@ -1,0 +1,84 @@
+---
+# tasks file for src/roles/postgresql
+- name: Install postgresql
+  become: true
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - postgresql
+    - postgresql-server
+    - libicu
+    - postgresql-contrib
+    - python3-psycopg2
+
+- name: Init db cluster
+  become: true
+  command: "/bin/postgresql-setup initdb"
+  environment:
+    PGSETUP_INITDB_OPTIONS: "-D {{ postgresql_datadir }} --encoding=UTF-8 --no-locale"
+  args:
+    creates: "{{ postgresql_datadir }}/PG_VERSION"
+
+- name: Setting log dir
+  become: true
+  file:
+    path: "{{ postgresql_logdir }}"
+    state: "directory"
+    owner: "postgres"
+    group: "postgres"
+    mode: "0755"
+
+- name: Setting postgresql.conf
+  become: true
+  template:
+    src: "postgresql.conf.j2"
+    dest: "{{ postgresql_datadir }}/postgresql.conf"
+    owner: "postgres"
+    group: "postgres"
+    mode: "0600"
+  notify: Restart postgres
+
+- name: Enable postgres
+  become: true
+  systemd:
+    name: postgresql
+    state: started
+    enabled: true
+  when:
+    - ansible_check_mode is false
+
+- name: create database
+  become: true
+  postgresql_db:
+    name: "{{ postgres.db_name }}"
+    encoding: "UTF-8"
+    login_user: postgres
+  become_user: postgres
+  when:
+    - ansible_check_mode is false
+  notify: Restart postgres
+
+- name: create user
+  become: true
+  postgresql_user:
+    db: "{{ postgres.db_name }}"
+    name: "{{ postgres.user_name }}"
+    password: "{{ postgres.user_password }}"
+    priv: ALL
+    state: present
+    login_user: postgres
+  become_user: postgres
+  when:
+    - ansible_check_mode is false
+  notify: Restart postgres
+
+- name: Setting pg_hba.conf
+  become: true
+  postgresql_pg_hba:
+    dest: "{{ postgresql_datadir }}/pg_hba.conf"
+    contype: local
+    users: "{{ postgres.user_name }}"
+    databases: "{{ postgres.db_name }}"
+    method: password
+  notify: Restart postgres

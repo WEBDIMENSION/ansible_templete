@@ -1,0 +1,84 @@
+---
+# tasks file for roles/mysql8
+
+- name: Check installed MySQL
+  command: bash -lc "mysql --version"
+  register: mysql_exists
+  changed_when: false
+  ignore_errors: true
+
+- name: debug
+  debug:
+    msg: "{{ mysql_exists }}"
+  when:
+    - mysql_exists.failed is true
+
+- name: Install RPM-GPG-KEY-mysql
+  become: true
+  rpm_key:
+    state: present
+    key: https://repo.mysql.com/RPM-GPG-KEY-mysql
+
+- name: Install mysql
+  become: true
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - mysql
+    - mysql-server
+
+- name: Install mysql plugin for python
+  become: true
+  dnf:
+    name: python3-PyMySQL
+    state: present
+
+- name: Systemd mysqld
+  become: true
+  systemd:
+    name: mysqld
+    state: started
+    enabled: true
+  when:
+    - mysql8.databases is defined
+    - not ansible_check_mode
+
+
+- name: Change NySQL root password
+  mysql_user:
+    login_user: 'root'
+    login_password: ''
+    name: root
+    host: localhost
+    password: '{{ secret.mysql8_root_password }}'
+  when:
+    - mysql8.databases is defined
+    - mysql_exists.failed is true
+
+- name: Create MySQL database
+  become: true
+  mysql_db:
+    login_user: 'root'
+    login_password: '{{ secret.mysql8_root_password }}'
+    name: "{{ item.value.db_name }}"
+    state: "{{ item.value.db_state }}"
+  with_dict:
+    - "{{ mysql8.databases }}"
+  when:
+    - mysql8.databases is defined
+    - mysql_exists.failed is true
+
+- name: Create MySQL user
+  mysql_user:
+    login_user: 'root'
+    login_password: '{{ secret.mysql8_root_password }}'
+    name: "{{ item.value.username }}"
+    host: "{{ item.value.host }}"
+    password: "{{ item.value.password }}"
+    priv: "{{ item.value.db_name }}.*:ALL,GRANT"
+    state: "{{ item.value.user_state }}"
+  with_dict: "{{ mysql8.databases }}"
+  when:
+    - mysql8.databases is defined
+    - mysql_exists.failed is true

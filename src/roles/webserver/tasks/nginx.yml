@@ -1,0 +1,137 @@
+---
+
+- name: Install Nginx
+  become: true
+  dnf:
+    name: nginx
+    state: present
+
+- name: Transfer nginx.conf
+  become: true
+  template:
+    src: nginx/nginx.conf
+    dest: /etc/nginx/nginx.conf
+    mode: 0600
+  notify: Restart webserver
+
+- name: Transfer default.conf
+  become: true
+  template:
+    src: nginx/default.conf.j2
+    dest: /etc/nginx/conf.d/default.conf
+    mode: 0600
+  notify: Restart webserver
+
+- name: Install openssl
+  become: true
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - openssl
+
+- name: Install cryptography
+  become: true
+  command: pip install --upgrade cryptography
+  changed_when: false
+  when:
+    - ansible_distribution == "AlmaLinux"
+    - ansible_distribution_major_version == "9"
+
+- name: Create ssl key dir
+  become: true
+  file:
+    path: /etc/nginx/ssl
+    state: directory
+    mode: 0755
+
+- name: Generate OpenSSL private key
+  become: true
+  openssl_privatekey:
+    path: /etc/nginx/ssl/server.key
+    size: 2048
+  run_once: true
+  when:
+    - not ansible_check_mode
+  notify:
+    - Restart webserver
+    - Restart firewalld
+
+
+- name: Generate OpenSSL CSR
+  become: true
+  openssl_csr:
+    path: /etc/nginx/ssl/server.csr
+    privatekey_path: /etc/nginx/ssl/server.key
+    common_name: "{{ ansible_host }}"
+  when:
+    - not ansible_check_mode
+  run_once: true
+  notify:
+    - Restart webserver
+    - Restart firewalld
+
+- name: Generate OpenSSL certificate
+  become: true
+  openssl_certificate:
+    path: /etc/nginx/ssl/server.crt
+    privatekey_path: /etc/nginx/ssl/server.key
+    csr_path: /etc/nginx/ssl/server.csr
+    provider: selfsigned
+  run_once: true
+  when:
+    - not ansible_check_mode
+  notify:
+    - Restart webserver
+    - Restart firewalld
+
+- name: Enable Nginx
+  become: true
+  systemd:
+    name: "{{ web_server_service_name }}"
+    state: started
+    enabled: true
+
+- name: Change permission Document Root {{ ngibx_document_root }}
+  become: true
+  file:
+    path: "{{ nginx_document_root }}"
+    state: "directory"
+    owner: "{{ web_user.name }}"
+    group: "{{ web_user.name }}"
+    mode: "775"
+  #    recurse: yes
+  notify:
+    - Restart webserver
+    - Restart firewalld
+
+- name: Change permission Document Root {{ nginx_document_root }}{{ nginx_public_dir }}
+  become: true
+  file:
+    path: "{{ nginx_document_root }}{{ nginx_public_dir }}"
+    state: "directory"
+    owner: "{{ web_user.name }}"
+    group: "{{ web_user.name }}"
+    mode: "775"
+  #    recurse: yes
+  notify:
+    - Restart webserver
+    - Restart firewalld
+
+- name: Make index.html
+  become: true
+  template:
+    src: templates/index.html.j2
+    dest: "{{ nginx_document_root }}{{ nginx_public_dir }}/index.html"
+    owner: "{{ web_user.name }}"
+    group: "{{ web_user.name }}"
+    mode: '0644'
+
+- name: Make phpinfo
+  become: true
+  template:
+    src: templates/phpinfo.php.j2
+    dest: "{{ nginx_document_root }}{{ nginx_public_dir }}/phpinfo.php"
+    owner: "{{ web_user.name }}"
+    group: "{{ web_user.name }}"
+    mode: '0644'

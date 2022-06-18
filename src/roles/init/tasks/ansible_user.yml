@@ -1,0 +1,49 @@
+---
+# tasks file for src/roles/init
+
+- name: Debug master_user
+  debug:
+    msg: "{{ master_user }}"
+
+- name: Add ansible-user
+  become: true
+  user:
+    name: "{{ master_user.name }}"
+    groups: "{{ master_user.groups }}"
+    state: "{{ master_user.state }}"
+    remove: "{{ master_user.remove }}"
+    create_home: "{{ master_user.create_home }}"
+    password: "{{ master_user.password | password_hash('sha512') }}"
+    shell: "{{ master_user.login_shell }}"
+    comment: "{{ master_user.comment }}"
+    expires: "{{ master_user.expires }}"
+
+- name: Set public-key
+  become: true
+  authorized_key:
+    user: "{{ master_user.name }}"
+    state: "{{ master_user.state }}"
+    key: "{{ lookup('file', '{{ playbook_dir }}/certs/{{ inventory_hostname_short }}/{{ master_user.public_key }}') }}"
+  when:
+    - master_user.sudo == 'present'
+    - ansible_check_mode is false
+
+- name: Set secret-key
+  become: true
+  copy:
+    content: "{{ lookup('file', '{{ playbook_dir }}/certs/{{ inventory_hostname_short }}/{{ master_user.secret_key }}') }}"
+    dest: "/home/{{ master_user.name }}/.ssh/id_rsa"
+    owner: "{{ master_user.name }}"
+    group: "{{ master_user.name }}"
+    mode: '600'
+  when:
+    - master_user.secret_key is defined
+    - master_user.create_home == 'yes'
+
+- name: Add sudo authorize
+  become: true
+  lineinfile:
+    dest: "/etc/sudoers"
+    backup: true
+    line: "{{ master_user.name }} ALL=(ALL) NOPASSWD: ALL"
+  when: master_user.sudo == 'present'

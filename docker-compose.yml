@@ -1,0 +1,9 @@
+version: '3.5'
+
+services:
+  ansible:
+    image: ghcr.io/webdimension/ansible:latest
+    container_name: ansible
+    volumes:
+      - ./src:/src
+    working_dir: /src

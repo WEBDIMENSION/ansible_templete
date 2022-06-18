@@ -1,0 +1,5 @@
+---
+
+nginx_document_root: '/usr/share/nginx'
+nginx_public_dir: '/html'
+nginx_host_name: "lamp.develop.local"

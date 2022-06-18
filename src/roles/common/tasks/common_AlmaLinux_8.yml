@@ -1,0 +1,25 @@
+---
+
+- name: Install common tools
+  become: true
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - git
+    - gcc
+    - python3-devel
+
+- name: python alias
+  become: true
+  file:
+    src: '/usr/bin/python3'
+    dest: '/usr/bin/python'
+    state: link
+
+- name: pip alias
+  become: true
+  file:
+    src: '/usr/bin/pip3'
+    dest: '/usr/bin/pip'
+    state: link

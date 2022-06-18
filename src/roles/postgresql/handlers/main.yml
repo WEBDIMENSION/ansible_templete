@@ -1,0 +1,10 @@
+---
+# handlers file for src/roles/postgresql
+
+- name: Restart postgres
+  become: true
+  service:
+    name: postgresql
+    state: restarted
+  when:
+    - ansible_check_mode is false

@@ -1,0 +1,17 @@
+---
+# defaults file for src/roles/sshd
+sshd_port: "{{ secret.sshd_port }}"
+
+firewalld_rich_rules:
+  - port: "{{ sshd_port }}"
+    protocol: tcp
+    control: accept
+    ips:
+      "{{ secret.ssh_allow_ips }}"
+
+firewalld_service:
+  - service: 'ssh'
+    zone: 'public'
+    permanent: 'yes'
+    state: disabled
+    immediate: true

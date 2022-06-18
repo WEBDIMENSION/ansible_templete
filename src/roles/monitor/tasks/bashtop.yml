@@ -1,0 +1,36 @@
+---
+# tasks file for src/roles/monitor
+
+- name: Check installed bashtop
+  command: "which bahtop"
+  register: bashtop_exists
+  changed_when: false
+  ignore_errors: true
+
+- name: Get bashtop source
+  become: true
+  get_url:
+    url: https://github.com/aristocratos/bashtop/archive/v0.8.24.tar.gz
+    dest: /tmp/v0.8.24.tar.gz
+    mode: 0775
+  when:
+    - bashtop_exists.failed is true
+
+- name: Unarchive bashtop
+  become: true
+  unarchive:
+    src: /tmp/v0.8.24.tar.gz
+    dest: /tmp
+    remote_src: true
+  when:
+    - bashtop_exists.failed is true
+
+- name: Copy bahtop
+  become: true
+  copy:
+    src: /tmp/bashtop-0.8.24/bashtop
+    dest: /usr/local/bin/bashtop
+    remote_src: true
+    mode: 0755
+  when:
+    - bashtop_exists.failed is true

@@ -1,0 +1,11 @@
+---
+
+- name: Install common tools
+  become: true
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - git
+    - python
+    - pip

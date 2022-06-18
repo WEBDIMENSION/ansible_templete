@@ -1,0 +1,14 @@
+---
+# tasks file for src/roles/monitor
+
+- include: glances.yml
+  tags:
+    - glances
+
+- include: bpytop.yml
+  tags:
+    - bpytop
+
+- include: bashtop.yml
+  tags:
+    - bashtop

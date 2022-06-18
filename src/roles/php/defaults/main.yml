@@ -1,0 +1,30 @@
+---
+# defaults file for src/roles/php
+
+php_dependencies:
+  - php
+  - php-common
+  - php-opcache
+  - php-cli
+  - php-curl
+  - php-mysqlnd
+  - php-mbstring
+  - php-xml
+  - php-xmlrpc
+  - php-gd
+  - php-pdo
+
+php:
+  versions:
+    php71: '7.1'
+    php72: '7.2'
+    php73: '7.3'
+    php74: '7.4'
+    php80: 'remi-8.0'
+    php81: 'remi-8.1'
+  language: 'Japanese'
+  internal_encoding: 'UTF-8'
+  encoding_translation: 'Off'
+  detect_order: 'auto'
+  filesize: '128M'
+  timezone: 'Asia/Tokyo'

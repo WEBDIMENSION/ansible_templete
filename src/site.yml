@@ -1,0 +1,97 @@
+---
+
+- name: Init
+  hosts: init
+  roles:
+    - role: init
+      tags:
+        - init
+    - role: sshd
+      tags:
+        - sshd
+
+- name: sshd
+  hosts: sshd
+  vars:
+  vars_files:
+  roles:
+    - role: sshd
+      tags:
+        - sshd
+
+- name: LAMP
+  hosts: lamp
+  vars:
+    web_server_service_name: httpd
+  vars_files:
+  roles:
+    - role: common
+      tags:
+        - common
+        - lamp
+    - role: webserver
+      tags:
+        - webserver
+        - lamp
+    - role: php
+      tags:
+        - php
+        - lamp
+    - role: mysql8
+      tags:
+        - mysql8
+        - lamp
+    - role: postgresql
+      tags:
+        - postgresql
+        - lamp
+
+- name: LEMP
+  hosts: lemp
+  vars:
+    web_server_service_name: nginx
+  vars_files:
+  roles:
+    - role: common
+      tags:
+        - common
+        - lemp
+    - role: webserver
+      tags:
+        - lemp
+    - role: php_fpm
+      tags:
+        - php_fpm
+        - lemp
+    - role: mysql8
+      tags:
+        - mysql8
+        - lemp
+    - role: postgresql
+      tags:
+        - postgresql
+        - lemp
+
+- name: docker
+  hosts: docker
+  roles:
+    - role: common
+      tags:
+        - common
+    - role: docker
+      tags:
+        - docker
+
+- name: Monitors
+  hosts: monitor
+  roles:
+    - role: monitor
+      tags:
+        - monitor
+
+- name: Debug
+  hosts: debug
+  roles:
+    - role: debug
+      tags:
+        - debug

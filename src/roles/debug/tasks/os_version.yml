@@ -1,0 +1,10 @@
+---
+# tasks file for src/roles/debug
+
+- name: ansible_distribution
+  debug:
+    msg: "{{ ansible_distribution }}"
+
+- name: ansible_distribution_major_version
+  debug:
+    msg: "{{ ansible_distribution_major_version }}"

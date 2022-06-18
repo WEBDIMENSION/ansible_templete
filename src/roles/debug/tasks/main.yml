@@ -1,0 +1,8 @@
+---
+# tasks file for src/roles/debug
+
+- include: magic_vars.yml
+  tags: magic_vars
+
+- include: os_version.yml
+  tags: os_version

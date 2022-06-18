@@ -1,0 +1,17 @@
+---
+# defaults file for src/roles/init
+
+- name: Check hostname
+  become: true
+  command: bash -lc "hostname"
+  register: check_hostname
+  changed_when: false
+
+- name: Debug hostname
+  debug:
+    msg: "{{ check_hostname }}"
+
+- name: Set hostname
+  become: true
+  hostname:
+    name: "{{ ansible_host }}"
