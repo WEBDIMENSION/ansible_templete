@@ -7,4 +7,4 @@ ansible_demo.staging_001
 [ansible_demo:vars]
 ansible_user={{ master_user.name }}
 ansible_port={{ secret.sshd_port }}
-ansible_ssh_private_key_file={{ playbook_dir }}/certs/{{ inventory_hostname_short }}/{{ master_user.secret_key }}
+ansible_ssh_private_key_file={{ playbook_dir }}/certs/{{ project_name }}/{{ master_user.secret_key }}
