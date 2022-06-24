@@ -25,7 +25,7 @@
   authorized_key:
     user: "{{ web_user.name }}"
     state: "{{ web_user.state }}"
-    key: "{{ lookup('file', '{{ playbook_dir }}/certs/{{ inventory_hostname_short }}/{{ web_user.public_key }}') }}"
+    key: "{{ lookup('file', '{{ playbook_dir }}/certs/{{ project_name }}/{{ web_user.public_key }}') }}"
   when:
     - not ansible_check_mode
     - "{{ web_user.state  == 'present' }}"
@@ -34,7 +34,7 @@
 - name: Set secret-key
   become: true
   copy:
-    content: "{{ lookup('file', '{{ playbook_dir }}/certs/{{ inventory_hostname_short }}/{{ web_user.secret_key }}') }}"
+    content: "{{ lookup('file', '{{ playbook_dir }}/certs/{{ project_name }}/{{ web_user.secret_key }}') }}"
     dest: "/home/{{ web_user.name }}/.ssh/id_rsa"
     owner: "{{ web_user.name }}"
     mode: '600'
