@@ -1,5 +1,11 @@
 ---
 # tasks file for src/roles/webserver
+
+- include: web_user_add.yml
+  tags:
+    - httpd
+    - nginx
+
 - include: httpd.yml
   when: web_server_service_name == 'httpd'
   tags:

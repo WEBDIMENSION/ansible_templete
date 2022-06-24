@@ -1,0 +1,53 @@
+---
+
+- name: Debug lamp_user
+  debug:
+    msg: "{{ web_user }}"
+
+- name: Add web user
+  become: true
+  user:
+    name: "{{ web_user.name }}"
+    groups: "{{ web_user.groups }}"
+    state: "{{ web_user.state }}"
+    remove: "{{ web_user.remove }}"
+    create_home: "{{ web_user.create_home }}"
+    password: "{{ web_user.password | password_hash('sha512', web_user.password_salt ) }}"
+    shell: "{{ web_user.login_shell }}"
+    comment: "{{ web_user.comment }}"
+    expires: "{{ web_user.expires }}"
+  notify:
+    - Restart webserver
+    - Restart firewalld
+
+- name: Set public-key
+  become: true
+  authorized_key:
+    user: "{{ web_user.name }}"
+    state: "{{ web_user.state }}"
+    key: "{{ lookup('file', '{{ playbook_dir }}/certs/{{ inventory_hostname_short }}/{{ web_user.public_key }}') }}"
+  when:
+    - not ansible_check_mode
+    - "{{ web_user.state  == 'present' }}"
+    - "{{ web_user.create_home is true }}"
+
+- name: Set secret-key
+  become: true
+  copy:
+    content: "{{ lookup('file', '{{ playbook_dir }}/certs/{{ inventory_hostname_short }}/{{ web_user.secret_key }}') }}"
+    dest: "/home/{{ web_user.name }}/.ssh/id_rsa"
+    owner: "{{ web_user.name }}"
+    mode: '600'
+  when:
+    - not ansible_check_mode
+    - "{{ web_user.secret_key is defined }}"
+    - "{{ web_user.create_home is true }}"
+
+- name: Add sudo authorize
+  become: true
+  lineinfile:
+    dest: "/etc/sudoers"
+    backup: true
+    line: "{{ web_user.name }} ALL=(ALL) NOPASSWD: ALL"
+  when:
+    - "{{ web_user.sudo == 'present' }}"
